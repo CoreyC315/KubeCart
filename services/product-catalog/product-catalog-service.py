@@ -1,16 +1,20 @@
 # Product Catalog Service (product_catalog_service.py)
 #
 # This service is responsible for managing all product details.
-# In a real cloud-native application, this would connect to a database
-# (like PostgreSQL as planned in Phase 2).
-# It provides REST endpoints for the frontend to fetch product lists and details.
+# It uses Python's standard 'logging' module for proper log output in Gunicorn/Docker.
 
 from flask import Flask, jsonify, request
+import logging
+
+# --- Configure Logging ---
+# Create a logger object
+# Setting level to INFO ensures all INFO, WARNING, and ERROR messages are captured
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
 # --- In-Memory Product Database (Placeholder) ---
-# In Phase 2, this data structure will be replaced by a proper database connection.
 PRODUCTS = {
     "P001": {
         "id": "P001",
@@ -44,16 +48,22 @@ PRODUCTS = {
 def get_products():
     """
     Endpoint to fetch all products or filter by category.
-    Example: GET /api/products?category=cpu
     """
     category_filter = request.args.get('category')
     
     if category_filter:
+        # Using logger.info() instead of print()
+        logger.info("Fetching products filtered by category: %s", category_filter)
+        
         filtered_products = [
             p for p in PRODUCTS.values() 
             if p['category'].lower() == category_filter.lower()
         ]
+        logger.info("Found %d products for category '%s'.", len(filtered_products), category_filter)
         return jsonify(filtered_products)
+    
+    # Using logger.info() instead of print()
+    logger.info("Fetching ALL products.")
     
     # Return all products if no filter is specified
     return jsonify(list(PRODUCTS.values()))
@@ -62,19 +72,21 @@ def get_products():
 def get_product_details(product_id):
     """
     Endpoint to fetch details for a single product.
-    Example: GET /api/products/P001
     """
+    # Using logger.info() instead of print()
+    logger.info("Request received for product ID: %s", product_id)
+    
     product = PRODUCTS.get(product_id)
     if product:
+        logger.info("Successfully retrieved details for %s.", product_id)
         return jsonify(product)
     
-    # Return 404 Not Found if the product ID doesn't exist
+    # Using logger.error() for errors
+    logger.error("Product ID %s not found in catalog.", product_id)
     return jsonify({"error": "Product not found"}), 404
 
 # --- Application Startup ---
 if __name__ == '__main__':
-    # When deployed in Minikube (Phase 2), this will run inside a container
-    # and listen on port 5000 (default Flask port).
-    # The Ingress service will handle routing to this port.
-    print("--- Product Catalog Service Started ---")
+    # This block only runs if executed directly (e.g., during development), not in Gunicorn
+    logger.info("--- Product Catalog Service Started (Development Mode) ---")
     app.run(debug=True, host='0.0.0.0', port=5000)
