@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - CloudShop</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Product Details</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="products.html">Back to Products</a>
+        </nav>
+    </header>
+    <main>
+        <section id="product-details-container">
+            <p>Fetching product details from the Product Catalog Service...</p>
+            </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    <script>
+        // Placeholder for JavaScript to get product ID from URL and call the API
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        console.log("Fetching details for product ID: " + productId);
+    </script>
+</body>
+</html>

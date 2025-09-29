@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Login</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
+    <main>
+        <section class="login-form-container">
+            <form id="login-form">
+                <label for="username">Username:</label>
+                <input type="text" id="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Log In</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    <script>
+        // Placeholder for JavaScript to handle login authentication
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            console.log("Attempting to authenticate user...");
+            // Simulate a successful login
+            window.location.href = "../core/index.html";
+        });
+    </script>
+</body>
+</html>

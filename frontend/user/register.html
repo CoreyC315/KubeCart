@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Create an Account</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </header>
+    <main>
+        <section class="register-form-container">
+            <form id="register-form">
+                <label for="new-username">Username:</label>
+                <input type="text" id="new-username" required>
+                <label for="new-password">Password:</label>
+                <input type="password" id="new-password" required>
+                <label for="confirm-password">Confirm Password:</label>
+                <input type="password" id="confirm-password" required>
+                <button type="submit">Register</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    <script>
+        // Placeholder for JavaScript to handle user registration
+        document.getElementById('register-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            console.log("Attempting to register new user...");
+            // Simulate a successful registration
+            alert("Registration successful! Please log in.");
+            window.location.href = "login.html";
+        });
+    </script>
+</body>
+</html>
