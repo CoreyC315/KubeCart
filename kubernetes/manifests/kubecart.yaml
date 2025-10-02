@@ -1,29 +1,22 @@
-# Kubernetes Manifests for CloudShop Microservices
-# This file defines Deployments (to run your containers) and Services 
-# (to enable internal networking) for all five core services.
-
-# --- 1. Product Catalog Service ---
-# Provides product data (reads)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-catalog-deployment
+  name: product-catalog-service-deployment
   labels:
-    app: product-catalog
+    app: product-catalog-service
 spec:
-  replicas: 2 # Start with 2 instances for resilience
+  replicas: 2 
   selector:
     matchLabels:
-      app: product-catalog
+      app: product-catalog-service
   template:
     metadata:
       labels:
-        app: product-catalog
+        app: product-catalog-service
     spec:
       containers:
-      - name: product-catalog
-        image: product-catalog-service:latest # Use your locally built image
-        imagePullPolicy: Never # Crucial for Minikube local image testing
+      - name: product-catalog-service-container
+        image: starrider315/product-catalog-service:1.3
         ports:
         - containerPort: 5000
         resources:
@@ -40,13 +33,12 @@ metadata:
   name: product-catalog-service # Internal hostname: http://product-catalog-service
 spec:
   selector:
-    app: product-catalog
+    app: product-catalog-service
   ports:
     - protocol: TCP
       port: 80 # The port the service exposes
       targetPort: 5000 # The port the container listens on (5000)
 ---
-
 # --- 2. Inventory Service ---
 # Tracks stock levels (reads/writes)
 apiVersion: apps/v1
@@ -67,8 +59,7 @@ spec:
     spec:
       containers:
       - name: inventory
-        image: inventory-service:latest
-        imagePullPolicy: Never
+        image: starrider315/inventory-service:1.0
         ports:
         - containerPort: 5000
         resources:
@@ -91,7 +82,6 @@ spec:
       port: 80
       targetPort: 5000
 ---
-
 # --- 3. Shopping Cart Service ---
 # Manages user session state (reads/writes)
 apiVersion: apps/v1
@@ -112,8 +102,7 @@ spec:
     spec:
       containers:
       - name: shopping-cart
-        image: shopping-cart-service:latest
-        imagePullPolicy: Never
+        image: starrider315/shopping-cart-service:1.0
         ports:
         - containerPort: 5000
         resources:
@@ -136,7 +125,6 @@ spec:
       port: 80
       targetPort: 5000
 ---
-
 # --- 4. Order Service ---
 # Processes and finalizes orders (writes)
 apiVersion: apps/v1
@@ -157,8 +145,7 @@ spec:
     spec:
       containers:
       - name: order
-        image: order-service:latest
-        imagePullPolicy: Never
+        image: starrider315/order-service:1.0
         ports:
         - containerPort: 5000
         resources:
@@ -181,7 +168,6 @@ spec:
       port: 80
       targetPort: 5000
 ---
-
 # --- 5. Compatibility Service ---
 # Checks component compatibility (reads)
 apiVersion: apps/v1
@@ -202,8 +188,7 @@ spec:
     spec:
       containers:
       - name: compatibility
-        image: compatibility-service:latest
-        imagePullPolicy: Never
+        image: starrider315/compatibility-service:1.0
         ports:
         - containerPort: 5000
         resources:
