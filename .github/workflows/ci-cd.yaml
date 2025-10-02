@@ -8,15 +8,15 @@ on:
 
 env:
   IMAGE_NAME: product-catalog-service 
-  SERVICE_PATH: services\product-catalog # ASSUMED PATH: Verify this is correct
+  SERVICE_PATH: services/product-catalog # FIX: Changed to forward slash (/)
   TAG: ${{ github.run_id }} 
   DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
-  K8S_MANIFEST: kubernetes/manifests/KubeCart.yaml # Path to your manifest
+  K8S_MANIFEST: kubernetes/manifests/KubeCart.yaml
+  K8S_CONTAINER_NAME: product-catalog-service-container # NEW: Container name for kubectl
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    # Define an output variable to pass the new image name to the deploy job
     outputs:
       new_image: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
       
@@ -44,31 +44,26 @@ jobs:
   # --- Kubernetes Deployment Job (Using kubectl set image) ---
   # ----------------------------------------------------
   deploy:
-    needs: build-and-push # Depends on the build job
+    needs: build-and-push
     runs-on: ubuntu-latest
     
-    # Get the image tag output from the previous job
     env:
       NEW_IMAGE_TAG: ${{ needs.build-and-push.outputs.new_image }}
       
     steps:
-      # This step needs KubeConfig access, which is highly dependent on your environment
       - name: ⬇️ Checkout Repository (Needed for access to KubeCart.yaml)
-        uses: actions/checkout@v4
+        uses: actions:checkout@v4
         
-      # PLACEHOLDER FOR KUBECTL CONFIGURATION (e.g., config for GKE/EKS/AKS)
-      # This is where you would install kubectl and configure cluster authentication.
-      # For a local cluster like Minikube, this is often skipped or manually configured 
-      # only to demonstrate the command logic.
+      # Placeholder for KUBECTL CONFIGURATION
+      # (You would configure Minikube/K8s access here)
 
       - name: 🚀 Update Deployment Image Tag
-        # We use a placeholder run command here, but the actual kubectl command 
-        # is the standard way to deploy a new image without changing the YAML file itself.
         run: |
-          echo "Deployment: product-catalog-service-deployment"
+          echo "Deployment: ${{ env.IMAGE_NAME }}-deployment"
+          echo "Container: ${{ env.K8S_CONTAINER_NAME }}"
           echo "New Image: ${{ env.NEW_IMAGE_TAG }}"
           
           # In a real environment, this command updates the deployment:
-          # kubectl set image deployment/product-catalog-service-deployment product-catalog-service-container=${{ env.NEW_IMAGE_TAG }}
+          # kubectl set image deployment/${{ env.IMAGE_NAME }}-deployment ${{ env.K8S_CONTAINER_NAME }}=${{ env.NEW_IMAGE_TAG }}
           
           echo "Deployment update simulated successfully."
