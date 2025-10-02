@@ -1,0 +1,227 @@
+# Kubernetes Manifests for CloudShop Microservices
+# This file defines Deployments (to run your containers) and Services 
+# (to enable internal networking) for all five core services.
+
+# --- 1. Product Catalog Service ---
+# Provides product data (reads)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-catalog-deployment
+  labels:
+    app: product-catalog
+spec:
+  replicas: 2 # Start with 2 instances for resilience
+  selector:
+    matchLabels:
+      app: product-catalog
+  template:
+    metadata:
+      labels:
+        app: product-catalog
+    spec:
+      containers:
+      - name: product-catalog
+        image: product-catalog-service:latest # Use your locally built image
+        imagePullPolicy: Never # Crucial for Minikube local image testing
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-catalog-service # Internal hostname: http://product-catalog-service
+spec:
+  selector:
+    app: product-catalog
+  ports:
+    - protocol: TCP
+      port: 80 # The port the service exposes
+      targetPort: 5000 # The port the container listens on (5000)
+---
+
+# --- 2. Inventory Service ---
+# Tracks stock levels (reads/writes)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-deployment
+  labels:
+    app: inventory
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      containers:
+      - name: inventory
+        image: inventory-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service # Internal hostname: http://inventory-service
+spec:
+  selector:
+    app: inventory
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+---
+
+# --- 3. Shopping Cart Service ---
+# Manages user session state (reads/writes)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-cart-deployment
+  labels:
+    app: shopping-cart
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shopping-cart
+  template:
+    metadata:
+      labels:
+        app: shopping-cart
+    spec:
+      containers:
+      - name: shopping-cart
+        image: shopping-cart-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-cart-service # Internal hostname: http://shopping-cart-service
+spec:
+  selector:
+    app: shopping-cart
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+---
+
+# --- 4. Order Service ---
+# Processes and finalizes orders (writes)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+  labels:
+    app: order
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+      - name: order
+        image: order-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service # Internal hostname: http://order-service
+spec:
+  selector:
+    app: order
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+---
+
+# --- 5. Compatibility Service ---
+# Checks component compatibility (reads)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compatibility-deployment
+  labels:
+    app: compatibility
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: compatibility
+  template:
+    metadata:
+      labels:
+        app: compatibility
+    spec:
+      containers:
+      - name: compatibility
+        image: compatibility-service:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: compatibility-service # Internal hostname: http://compatibility-service
+spec:
+  selector:
+    app: compatibility
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

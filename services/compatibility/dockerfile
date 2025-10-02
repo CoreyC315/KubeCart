@@ -1,0 +1,23 @@
+# Dockerfile for the Compatibility Service
+FROM python:3.11-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Set PYTHONPATH to ensure Gunicorn can find the application module
+ENV PYTHONPATH=/app
+
+# Copy only requirements.txt first to leverage Docker layer caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY compatibility-service.py .
+
+# Expose the port the application runs on
+EXPOSE 5000
+
+# Command to run the application using Gunicorn for production readiness
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "compatibility-service:app"]
