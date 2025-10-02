@@ -1,4 +1,3 @@
-# .github/workflows/ci-cd.yaml
 name: KubeCart CI/CD Pipeline
 
 # Trigger the workflow on pushes to the main branch
@@ -15,6 +14,8 @@ env:
   # Use the GitHub Run ID as a unique tag
   TAG: ${{ github.run_id }} 
   DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+  # Define the path to the Dockerfile and service context
+  SERVICE_PATH: services/product-catalog
 
 jobs:
   build-and-push:
@@ -30,52 +31,43 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      # --- 2. Build the Docker Image ---
+      # --- 2. Build the Docker Image (Corrected Path) ---
       - name: 🔨 Build Docker Image
-        # Note: 'context' is where the Dockerfile is located. Assuming it's in the repo root.
-        # If your Dockerfile is in a subdirectory (e.g., 'services/product-catalog'), adjust the 'context'.
-        # We use a combined tag format: starrider315/product-catalog-service:latest and :run_id
         uses: docker/build-push-action@v5
         with:
-          context: .
+          # Set the context to the directory containing the files the Dockerfile needs (like requirements.txt)
+          context: ${{ env.SERVICE_PATH }}
+          # Explicitly specify the location of the Dockerfile
+          file: ${{ env.SERVICE_PATH }}/Dockerfile 
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
       # --- 3. Update Kubernetes Manifests (Optional but Recommended) ---
-      # This step updates the YAML to use the new image tag before deploying
       - name: 📝 Update K8s Manifest with New Image Tag
         uses: fjogeleit/yaml-update-action@main
         with:
           value: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
           propertyPath: "spec.template.spec.containers[0].image"
-          filePath: "kubernetes/manifests/KubeCart.yaml" # Adjust path to your file
+          filePath: "kubernetes/manifests/KubeCart.yaml" 
           commitChange: true
 
   # ----------------------------------------------------
   # --- Kubernetes Deployment Job (Basic Example) ---
   # ----------------------------------------------------
   deploy:
-    needs: build-and-push # Ensures build must succeed first
+    needs: build-and-push 
     runs-on: ubuntu-latest
     
-    # This step is highly dependent on your cluster environment. 
-    # This example assumes you have a way to securely connect your runner to KubeCart.
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
         
       - name: 🚀 Deploy to Kubernetes (using kubectl)
-        # Note: For actual deployment, you would typically use a dedicated action
-        # for your cloud provider (e.g., Google GKE, AWS EKS, Azure AKS) or 
-        # use a secret for your KubeConfig.
         run: |
-          # The following is a placeholder command for deployment:
-          # In a real environment, you'd configure kubectl access first.
           echo "Simulating deployment using kubectl apply..."
-          # kubectl apply -f kubernetes/manifests/
           
-          # Since we updated the YAML file in the previous job and committed, 
-          # you can use that updated YAML to deploy.
+          # This command would be used to deploy the newly tagged image.
+          # You still need to configure KubeConfig access in a real scenario.
           echo "Deployment complete for ${{ env.IMAGE_NAME }}:${{ env.TAG }}"
