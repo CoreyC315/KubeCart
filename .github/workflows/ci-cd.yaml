@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: product-catalog-service 
-  SERVICE_PATH: product-catalog-service # ASSUMED PATH: Verify this is correct
+  SERVICE_PATH: product-catalog # ASSUMED PATH: Verify this is correct
   TAG: ${{ github.run_id }} 
   DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
   K8S_MANIFEST: kubernetes/manifests/KubeCart.yaml # Path to your manifest
