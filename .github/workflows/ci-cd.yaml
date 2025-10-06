@@ -8,7 +8,7 @@ on:
 
 env:
   IMAGE_NAME: product-catalog-service 
-  SERVICE_PATH: services/product-catalog # FIX: Changed to forward slash (/)
+  SERVICE_PATH: services/product-catalog # Changed to forward slash (/)
   TAG: ${{ github.run_id }} 
   DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
   K8S_MANIFEST: kubernetes/manifests/KubeCart.yaml
