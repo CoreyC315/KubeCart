@@ -54,8 +54,14 @@ jobs:
       - name: ⬇️ Checkout Repository (Needed for access to KubeCart.yaml)
         uses: actions/checkout@v4
         
-      # Placeholder for KUBECTL CONFIGURATION
-      # (You would configure Minikube/K8s access here)
+      - name: ⚙️ Configure Kubeconfig  # <--- NEW STEP ADDED HERE
+        run: |
+          # Create the .kube directory if it doesn't exist
+          mkdir -p $HOME/.kube
+          # Write the KUBE_CONFIG secret content to the default config file path
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          # Set correct permissions
+          chmod 600 $HOME/.kube/config
 
       - name: 🚀 Update Deployment Image Tag
         run: |
@@ -63,7 +69,10 @@ jobs:
           echo "Container: ${{ env.K8S_CONTAINER_NAME }}"
           echo "New Image: ${{ env.NEW_IMAGE_TAG }}"
           
-          # In a real environment, this command updates the deployment:
+          # This command will now run successfully because the cluster is configured.
           kubectl set image deployment/${{ env.IMAGE_NAME }}-deployment ${{ env.K8S_CONTAINER_NAME }}=${{ env.NEW_IMAGE_TAG }}
           
-          echo "Deployment update simulated successfully."
+          # Optional: You may want to roll out the update and wait
+          # kubectl rollout status deployment/${{ env.IMAGE_NAME }}-deployment
+
+          echo "Deployment update initiated successfully."
