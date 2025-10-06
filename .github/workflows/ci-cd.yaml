@@ -64,6 +64,6 @@ jobs:
           echo "New Image: ${{ env.NEW_IMAGE_TAG }}"
           
           # In a real environment, this command updates the deployment:
-          # kubectl set image deployment/${{ env.IMAGE_NAME }}-deployment ${{ env.K8S_CONTAINER_NAME }}=${{ env.NEW_IMAGE_TAG }}
+          kubectl set image deployment/${{ env.IMAGE_NAME }}-deployment ${{ env.K8S_CONTAINER_NAME }}=${{ env.NEW_IMAGE_TAG }}
           
           echo "Deployment update simulated successfully."
