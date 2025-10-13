@@ -13,7 +13,7 @@ env:
   RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP_NAME }}
   
   # --- Image & Deployment Specific Variables ---
-  IMAGE_NAME: product-catalog-service # This pipeline is for one service
+  IMAGE_NAME: product-catalog-service 
   SERVICE_PATH: services/product-catalog
   K8S_CONTAINER_NAME: product-catalog-service-container
   DEPLOYMENT_NAME: product-catalog-service-deployment
@@ -22,7 +22,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      # Output the full image name for the deploy job
       image_name: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
 
     steps:
@@ -30,12 +29,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🔐 Log in to Azure
-        uses: azure/login@v1 # <-- CHANGE: Log into Azure first
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      # --- NEW DEBUGGING STEP ---
+      - name: 🧐 Debug - Print Environment Variables
+        run: |
+          echo "ACR Name from env: ${{ env.ACR_NAME }}"
+          echo "Cluster Name from env: ${{ env.CLUSTER_NAME }}"
+          echo "Resource Group from env: ${{ env.RESOURCE_GROUP }}"
+          
+          # This checks if the secret is being read at all
+          if [ -z "${{ secrets.ACR_NAME }}" ]; then
+            echo "Error: ACR_NAME secret is not set!"
+          else
+            echo "ACR_NAME secret appears to be set."
+          fi
 
       - name: 🔐 Log in to Azure Container Registry
-        uses: azure/docker-login@v1 # <-- CHANGE: Use the ACR login action
+        uses: azure/docker-login@v1
         with:
           login-server: ${{ env.ACR_NAME }}.azurecr.io
 
@@ -49,25 +62,20 @@ jobs:
             ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
             ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
 
-  # ----------------------------------------------------
-  # --- Kubernetes Deployment Job ---
-  # ----------------------------------------------------
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
       - name: 🔐 Log in to Azure
-        uses: azure/login@v1 # <-- CHANGE: Log into Azure here too
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ⚙️ Set up Kubeconfig for AKS
         run: az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.CLUSTER_NAME }} --overwrite-existing
-        # <-- CHANGE: This is the secure way to connect to AKS
 
       - name: 🚀 Update Kubernetes Deployment
         run: |
           kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{ env.K8S_CONTAINER_NAME }}=${{ needs.build-and-push.outputs.image_name }}
-          
           echo "Deployment update initiated."
