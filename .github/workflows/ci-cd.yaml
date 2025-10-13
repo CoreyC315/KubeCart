@@ -7,8 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  # --- Project Specific Variables ---
-  ACR_NAME: ${{ secrets.ACR_NAME }}
+  # --- Project Specific Variables (ACR_NAME is removed from here) ---
   CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
   RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP_NAME }}
   
@@ -22,7 +21,8 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image_name: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+      # Use the secret directly to construct the output image name
+      image_name: ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
 
     steps:
       - name: ⬇️ Checkout Repository
@@ -32,25 +32,12 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
-      # --- NEW DEBUGGING STEP ---
-      - name: 🧐 Debug - Print Environment Variables
-        run: |
-          echo "ACR Name from env: ${{ env.ACR_NAME }}"
-          echo "Cluster Name from env: ${{ env.CLUSTER_NAME }}"
-          echo "Resource Group from env: ${{ env.RESOURCE_GROUP }}"
-          
-          # This checks if the secret is being read at all
-          if [ -z "${{ secrets.ACR_NAME }}" ]; then
-            echo "Error: ACR_NAME secret is not set!"
-          else
-            echo "ACR_NAME secret appears to be set."
-          fi
 
       - name: 🔐 Log in to Azure Container Registry
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          # <-- CHANGE: Use the secret directly here
+          login-server: ${{ secrets.ACR_NAME }}.azurecr.io
 
       - name: 🔨 Build and Push Docker Image to ACR
         uses: docker/build-push-action@v5
@@ -59,8 +46,8 @@ jobs:
           file: ${{ env.SERVICE_PATH }}/Dockerfile
           push: true
           tags: |
-            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
-            ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+            ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+            ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.run_id }}
 
   deploy:
     needs: build-and-push
@@ -79,3 +66,4 @@ jobs:
         run: |
           kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} ${{ env.K8S_CONTAINER_NAME }}=${{ needs.build-and-push.outputs.image_name }}
           echo "Deployment update initiated."
+
