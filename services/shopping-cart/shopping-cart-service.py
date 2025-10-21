@@ -3,6 +3,8 @@
 # This service manages the contents of a user's shopping cart.
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 import logging
 
 # --- Configure Logging ---
@@ -10,6 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)
 
 # --- In-Memory Cart Store (Placeholder) ---
 # Maps User ID to a list of cart items:
@@ -110,4 +113,4 @@ def clear_cart(user_id):
 # --- Application Startup ---
 if __name__ == '__main__':
     logger.info("--- Shopping Cart Service Started (Development Mode) ---")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

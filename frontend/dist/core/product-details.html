@@ -30,6 +30,7 @@
         <nav>
             <a href="../core/index.html">Home</a>
             <a href="products.html">Back to Products</a>
+            <a href="shopping-cart.html">View Cart</a>
         </nav>
     </header>
     <main>
@@ -103,6 +104,44 @@
             // This is where you would call your Shopping Cart Service API
             alert(`Product ${productId} added to cart! (Placeholder)`);
         }
+
+        <!-- In product-details.html -->
+
+    // --- NEW FUNCTION ---
+    // This function will be called by the 'Add to Cart' button
+    function addToCart(productId) {
+        // For local development, we'll hardcode a user ID.
+        const userId = "user-123"; 
+        const apiUrl = `http://localhost:5001/api/cart/${userId}`;
+
+        console.log(`Adding product ${productId} to cart for user ${userId}...`);
+
+        // Use the Fetch API to send data to your service
+        fetch(apiUrl, {
+            method: 'POST', // Use POST to add items
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // The body of the request contains the product ID and quantity
+            body: JSON.stringify({
+                "product_id": productId,
+                "quantity": 1 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            // Give the user feedback
+            alert(`Product ${productId} added to cart!`); 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('Error: Could not add item to cart. Is the shopping cart service running on port 5001?');
+        });
+    }
+
+
+
     </script>
 </body>
 </html>
