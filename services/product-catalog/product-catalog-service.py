@@ -20,7 +20,7 @@ PRODUCTS = {
         "price": 199.99,
         "description": "High-performance 6-core processor.",
         "socket": "AM4",
-        "version": "CI/CD Test 1.4"
+        "version": "CI/CD Test 1.5"
     },
     "P002": {
         "id": "P002",
