@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: static-web-service
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-ipv4: "172.212.5.114"
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80 # Assuming Nginx inside the container is on port 80
+  selector:
+    app: static-web # Must match the label in your Deployment manifest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-web-deployment
+spec:
+  replicas: 2 # Recommended for high availability
+  selector:
+    matchLabels:
+      app: static-web
+  template:
+    metadata:
+      labels:
+        app: static-web
+    spec:
+      containers:
+      - name: static-web-container
+        image: cloudshopacr12345.azurecr.io/static-webpage:v12
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+      

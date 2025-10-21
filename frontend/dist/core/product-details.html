@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+    <style>
+        /* Styles from your other pages for consistency */
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-card h2 { /* Using h2 for the main product name */
+            margin-top: 0;
+        }
+        .product-card .price {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Product Details</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="products.html">Back to Products</a>
+        </nav>
+    </header>
+    <main>
+        <section id="product-details-container">
+            <p>Fetching product details from the Product Catalog Service...</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productContainer = document.getElementById('product-details-container');
+
+            // 1. Get the product ID from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                productContainer.innerHTML = '<p>Error: No product ID specified.</p>';
+                return;
+            }
+
+            // 2. Call your local API using the specific product ID
+            // Assuming your API supports GET /api/products/<id>
+            fetch(`http://localhost:5000/api/products/${productId}`)
+                .then(response => {
+                    if (response.status === 404) {
+                        throw new Error('Product not found');
+                    }
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON from the response
+                })
+                .then(product => {
+                    // 3. Display the single product's details
+                    productContainer.innerHTML = ''; // Clear the "Loading..." message
+
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+
+                    // Build the HTML for the detailed view
+                    // We can add more details here than on the list page
+                    productCard.innerHTML = `
+                        <h2>${product.name}</h2>
+                        <p class="price">$${product.price}</p>
+                        <p><strong>Product ID:</strong> ${product.id}</p>
+                        <p><strong>Category:</strong> ${product.category}</p>
+                        <p><strong>Description:</strong> ${product.description}</p>
+                        
+                        ${product.socket ? `<p><strong>Socket:</strong> ${product.socket}</p>` : ''}
+                        
+                        <p><small>Version: ${product.version}</small></p>
+                        
+                        <button onclick="addToCart('${product.id}')">Add to Cart</button>
+                    `;
+                    productContainer.appendChild(productCard);
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching product details:', error);
+                    productContainer.innerHTML = `<p>Error loading product: ${error.message}. Is the API server running?</p>`;
+                });
+        });
+
+        // Placeholder function for a future shopping cart
+        function addToCart(productId) {
+            console.log(`Adding product ${productId} to cart...`);
+            // This is where you would call your Shopping Cart Service API
+            alert(`Product ${productId} added to cart! (Placeholder)`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPUs - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+    <style>
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>GPUs</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="../core/products.html">All Products</a>
+        </nav>
+    </header>
+    <main>
+        <p>This page makes a **filtered API call** to the Product Catalog Service to display only GPUs.</p>
+        <div id="gpu-list">
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    <script>
+        // Wait for the HTML document to finish loading
+        document.addEventListener('DOMContentLoaded', () => {
+            const gpuListContainer = document.getElementById('gpu-list');
+
+            // Call your local API
+            fetch('http://localhost:5000/api/products?category=gpu')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON from the response
+                })
+                .then(gpus => {
+                    // Clear the "Loading..." message
+                    gpuListContainer.innerHTML = '';
+
+                    if (gpus.length === 0) {
+                        gpuListContainer.innerHTML = '<p>No GPUs found.</p>';
+                        return;
+                    }
+
+                    // Loop through each GPU and create HTML for it
+                    gpus.forEach(gpu => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+
+                        productCard.innerHTML = `
+        <h3>${gpu.name} (ID: ${gpu.id})</h3>
+        <p>${gpu.description}</p>
+        <p>Socket: ${gpu.socket}</p>
+        <p class="price">$${gpu.price}</p>
+        
+        <a href="../core/product-details.html?id=${gpu.id}">View Details</a>
+
+        <p><small>Version: ${gpu.version}</small></p>
+    `;
+                        gpuListContainer.appendChild(productCard);
+                    });
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching GPUs:', error);
+                    gpuListContainer.innerHTML = '<p>Error loading products. Is the API server running on port 5000?</p>';
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: product-catalog-service
 spec:
-  replicas: 2 
+  replicas: 1
   selector:
     matchLabels:
       app: product-catalog-service
@@ -48,7 +48,7 @@ metadata:
   labels:
     app: inventory
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: inventory
@@ -91,7 +91,7 @@ metadata:
   labels:
     app: shopping-cart
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: shopping-cart
@@ -134,7 +134,7 @@ metadata:
   labels:
     app: order
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: order
@@ -177,7 +177,7 @@ metadata:
   labels:
     app: compatibility
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: compatibility

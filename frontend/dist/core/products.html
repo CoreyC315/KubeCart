@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Products - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css"> 
+    <style>
+        /* Added styles from your other pages for consistency */
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-card h3 {
+            margin-top: 0;
+        }
+        .product-card .price {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Our Products</h1>
+        <nav>
+            <a href="../core/index.html">Home</a> 
+        </nav>
+    </header>
+    <main>
+        <div id="product-list">
+            <p>Fetching all products from the Product Catalog Service...</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productListContainer = document.getElementById('product-list');
+
+            // Fetch ALL products by removing the '?category=' filter
+            fetch('http://localhost:5000/api/products')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(products => {
+                    productListContainer.innerHTML = ''; // Clear the loading message
+
+                    if (products.length === 0) {
+                        productListContainer.innerHTML = '<p>No products found.</p>';
+                        return;
+                    }
+
+                    // Loop through each product and create a card for it
+                    products.forEach(product => {
+    const productCard = document.createElement('div');
+    productCard.className = 'product-card';
+
+    // This structure matches your other HTML files
+    productCard.innerHTML = `
+        <h3>${product.name} (ID: ${product.id})</h3>
+        <p>${product.description}</p>
+        <p>Category: ${product.category}</p>
+        <p class="price">$${product.price}</p>
+        
+        <a href="product-details.html?id=${product.id}">View Details</a>
+        
+        <p><small>Version: ${product.version}</small></p>
+    `;
+    productListContainer.appendChild(productCard);
+});
+                })
+                .catch(error => {
+                    console.error('Error fetching products:', error);
+                    productListContainer.innerHTML = '<p>Error loading products. Is the API server running on port 5000?</p>';
+                });
+        });
+    </script>
+</body>
+</html>

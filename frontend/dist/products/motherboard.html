@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>motherboards - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+    <style>
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Motherboards</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="../core/products.html">All Products</a>
+        </nav>
+    </header>
+    <main>
+        <p>This page makes a **filtered API call** to the Product Catalog Service to display only motherboards.</p>
+        <div id="motherboard-list">
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+    <script>
+        // Wait for the HTML document to finish loading
+        document.addEventListener('DOMContentLoaded', () => {
+            const motherboardListContainer = document.getElementById('motherboard-list');
+
+            // Call your local API
+            fetch('http://localhost:5000/api/products?category=motherboard')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON from the response
+                })
+                .then(motherboards => {
+                    // Clear the "Loading..." message
+                    motherboardListContainer.innerHTML = '';
+
+                    if (motherboards.length === 0) {
+                        motherboardListContainer.innerHTML = '<p>No motherboards found.</p>';
+                        return;
+                    }
+
+                    // Loop through each motherboard and create HTML for it
+                    motherboards.forEach(motherboard => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+
+                        productCard.innerHTML = `
+        <h3>${motherboard.name} (ID: ${motherboard.id})</h3>
+        <p>${motherboard.description}</p>
+        <p>Socket: ${motherboard.socket}</p>
+        <p class="price">$${motherboard.price}</p>
+        
+        <a href="../core/product-details.html?id=${motherboard.id}">View Details</a>
+
+        <p><small>Version: ${motherboard.version}</small></p>
+    `;
+                        motherboardListContainer.appendChild(productCard);
+                    });
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching motherboards:', error);
+                    motherboardListContainer.innerHTML = '<p>Error loading products. Is the API server running on port 5000?</p>';
+                });
+        });
+    </script>
+</body>
+
+</html>

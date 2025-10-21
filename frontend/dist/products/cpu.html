@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPUs - CloudShop</title>
+    <link rel="stylesheet" href="../core/styles.css">
+    <style>
+        .product-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>CPUs</h1>
+        <nav>
+            <a href="../core/index.html">Home</a>
+            <a href="products.html">All Products</a>
+        </nav>
+    </header>
+    <main>
+        <p>This page makes a **filtered API call** to the Product Catalog Service to display only CPUs.</p>
+        <div id="cpu-list">
+            <p>Loading CPUs...</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025 CloudShop</p>
+    </footer>
+
+    <script>
+        // Wait for the HTML document to finish loading
+        document.addEventListener('DOMContentLoaded', () => {
+            const cpuListContainer = document.getElementById('cpu-list');
+
+            // Call your local API
+            fetch('http://localhost:5000/api/products?category=cpu')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse the JSON from the response
+                })
+                .then(cpus => {
+                    // Clear the "Loading..." message
+                    cpuListContainer.innerHTML = '';
+
+                    if (cpus.length === 0) {
+                        cpuListContainer.innerHTML = '<p>No CPUs found.</p>';
+                        return;
+                    }
+
+                    // Loop through each CPU and create HTML for it
+                    cpus.forEach(cpu => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+
+                        productCard.innerHTML = `
+        <h3>${cpu.name} (ID: ${cpu.id})</h3>
+        <p>${cpu.description}</p>
+        <p>Socket: ${cpu.socket}</p>
+        <p class="price">$${cpu.price}</p>
+
+        <a href="../core/product-details.html?id=${cpu.id}">View Details</a>
+
+        <p><small>Version: ${cpu.version}</small></p>
+    `;
+                        cpuListContainer.appendChild(productCard);
+                    });
+                })
+                .catch(error => {
+                    // Handle any errors that occurred during the fetch
+                    console.error('Error fetching CPUs:', error);
+                    cpuListContainer.innerHTML = '<p>Error loading products. Is the API server running on port 5000?</p>';
+                });
+        });
+    </script>
+</body>
+
+</html>

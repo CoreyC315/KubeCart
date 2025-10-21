@@ -1,9 +1,5 @@
-# Product Catalog Service (product_catalog_service.py)
-#
-# This service is responsible for managing all product details.
-# It uses Python's standard 'logging' module for proper log output in Gunicorn/Docker.
-
 from flask import Flask, jsonify, request
+from flask_cors import CORS  # <-- ADD THIS LINE
 import logging
 
 # --- Configure Logging ---
@@ -13,6 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+CORS(app)  # <-- AND ADD THIS LINE
 
 # --- In-Memory Product Database (Placeholder) ---
 PRODUCTS = {
